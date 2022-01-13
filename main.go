@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 )
@@ -17,10 +18,22 @@ func main() {
 		return
 	}
 	defer file.Close()
+	reader := bufio.NewReader(file)
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
+	// scanner := bufio.NewScanner(file)
+	// for scanner.Scan() {
+	// 	line := scanner.Text()
+	// 	fmt.Println(">>", line)
+	// }
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil && err != io.EOF {
+			panic(err)
+		}
+		if err == io.EOF {
+			break
+		}
 		fmt.Println(">>", line)
 	}
 
