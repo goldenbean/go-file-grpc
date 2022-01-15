@@ -1,9 +1,13 @@
 # README
 
 ```bash
-go get -u github.com/golang/protobuf/protoc-gen-go
+go mod init go-file-grpc
+go mod tidy
+go env
 
-protoc --go_out=. ./proto/SubscribeRe*.proto
+go get -u github.com/golang/protobuf/{protoc-gen-go,proto} 
+
+protoc --go_out=plugins=grpc:. proto/*.proto
 ```
 
 [Protoc installation](https://grpc.io/docs/protoc-installation/)

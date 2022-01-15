@@ -1,40 +1,31 @@
 package main
 
 import (
-	"bufio"
+	"flag"
 	"fmt"
-	"io"
 	"log"
-	"os"
+	"net"
+
+	"google.golang.org/grpc"
+
+	pb "go-file-grpc/rpc"
+)
+
+var (
+	port = flag.Int("port", 50051, "The server port")
 )
 
 func main() {
-	fmt.Println("Start")
 
-	fileName := "./README.md"
-	file, err := os.Open(fileName)
+	flag.Parse()
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
 	if err != nil {
-		log.Fatal("Open File Error", err)
-		return
+		log.Fatalf("failed to listen: %v", err)
 	}
-	defer file.Close()
-	reader := bufio.NewReader(file)
-
-	// scanner := bufio.NewScanner(file)
-	// for scanner.Scan() {
-	// 	line := scanner.Text()
-	// 	fmt.Println(">>", line)
-	// }
-
-	for {
-		line, err := reader.ReadString('\n')
-		if err != nil && err != io.EOF {
-			panic(err)
-		}
-		if err == io.EOF {
-			break
-		}
-		fmt.Println(">>", line)
+	s := grpc.NewServer()
+	pb.RegisterGreeterServer(s, &server{})
+	log.Printf("server listening at %v", lis.Addr())
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
-
 }
